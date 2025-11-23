@@ -10,5 +10,7 @@ axum = "0.8.7"
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.17"
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread"] }
+time = { version = "0.3.44", features = ["macros", "serde"] }
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+uuid = { version = "1.18.1", features = ["v4", "serde"] }

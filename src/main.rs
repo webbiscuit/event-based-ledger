@@ -1,12 +1,20 @@
 mod http;
 mod config;
+mod domain;
 
+use std::sync::{Arc, Mutex};
+
+use crate::domain::ledger::Ledger;
 use crate::{config::Config, http::routes::format_listen_addr};
 use crate::http::create_router;
 
 use tracing::{info, Level};
 use tracing_subscriber::EnvFilter;
 use anyhow::Result;
+
+pub struct AppState {
+    pub ledger: Arc<Mutex<Ledger>>,
+}
 
 #[tokio::main]
 async fn main() -> Result<()>{
