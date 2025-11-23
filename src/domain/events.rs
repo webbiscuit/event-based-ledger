@@ -8,12 +8,13 @@ use crate::domain::types::AccountId;
 #[serde(tag = "type", rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum LedgerEventPayload {
     // A new account was opened
-    AccountOpened { account_id: AccountId },
+    AccountOpened,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LedgerEvent {
     pub id: Uuid,
+    pub account_id: AccountId,
     pub created_at: OffsetDateTime,
     pub payload: LedgerEventPayload
 }
@@ -23,7 +24,8 @@ impl LedgerEvent {
         Self {
             id: Uuid::new_v4(),
             created_at: OffsetDateTime::now_utc(),
-            payload: LedgerEventPayload::AccountOpened { account_id }
+            account_id,
+            payload: LedgerEventPayload::AccountOpened
         }
     }
 }

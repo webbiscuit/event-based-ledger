@@ -16,6 +16,16 @@ impl Ledger {
         &self.events
     }
 
+    pub fn events_for_account(&self, account_id: AccountId) -> Vec<LedgerEvent> {
+        info!("Looking up account {}", account_id);
+
+        self.events
+            .iter()
+            .filter(|e| e.account_id == account_id)
+            .cloned()
+            .collect()
+    }
+
     pub fn open_account(&mut self) -> AccountId {
         let account_id = AccountId::new_v4();
 
