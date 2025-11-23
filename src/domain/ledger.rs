@@ -1,6 +1,6 @@
 use tracing::info;
 
-use crate::domain::{Money, errors::DomainError, events::LedgerEvent, money, types::{AccountId, EventId}};
+use crate::domain::{Money, errors::DomainError, events::LedgerEvent, types::{AccountId, EventId}};
 
 #[derive(Debug, Default)]
 pub struct Ledger {
@@ -75,7 +75,7 @@ mod tests {
         let mut ledger = Ledger::new();
         let account_id = ledger.open_account();
 
-        let amount = Money::new_minor(10_00, Currency::GBP).unwrap(); // £10
+        let amount = Money::new_minor(10_00, Currency::Gbp).unwrap(); // £10
         ledger.deposit(account_id, amount).unwrap();
 
         let events = ledger.events_for_account(account_id).unwrap();
@@ -95,7 +95,7 @@ mod tests {
         let mut ledger = Ledger::new();
         let fake_account = AccountId::new_v4();
 
-        let amount = Money::new_minor(5_00, Currency::GBP).unwrap();
+        let amount = Money::new_minor(5_00, Currency::Gbp).unwrap();
         let err = ledger.deposit(fake_account, amount).unwrap_err();
 
         matches!(err, DomainError::AccountNotFound);

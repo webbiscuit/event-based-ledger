@@ -1,12 +1,6 @@
 use axum::{Json, extract::{Path, State}, http::StatusCode};
-use serde::Serialize;
 
-use crate::{AppState, domain::{errors::DomainError, events::LedgerEvent, types::AccountId}};
-
-#[derive(Serialize)]
-pub struct AccountEventsResponse {
-    id: AccountId
-}
+use crate::{AppState, domain::{errors::DomainError, events::LedgerEvent}};
 
 pub async fn get_account_events_handler(
     State(state): State<AppState>,

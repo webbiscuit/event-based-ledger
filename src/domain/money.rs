@@ -3,18 +3,19 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum Currency {
-    GBP,
-    USD,
-    EUR,
+    Gbp,
+    Usd,
+    Eur,
 }
 
 impl Currency {
     pub fn symbol(&self) -> &'static str {
         match self {
-            Currency::EUR => "€",
-            Currency::GBP => "£",
-            Currency::USD => "$"
+            Currency::Eur => "€",
+            Currency::Gbp => "£",
+            Currency::Usd => "$"
         }
     }
 }
@@ -101,43 +102,43 @@ mod tests {
 
     #[test]
     fn new_minor_rejects_negative() {
-        let result = Money::new_minor(-1, Currency::GBP);
+        let result = Money::new_minor(-1, Currency::Gbp);
         assert_eq!(result, Err(MoneyError::Negative(-1)));
     }
 
     #[test]
     fn new_minor_creates_valid_money() {
-        let m = Money::new_minor(123, Currency::GBP).unwrap();
+        let m = Money::new_minor(123, Currency::Gbp).unwrap();
         assert_eq!(m.amount(), 123);
-        assert_eq!(m.currency(), Currency::GBP);
+        assert_eq!(m.currency(), Currency::Gbp);
     }
 
     #[test]
     fn checked_add_same_currency_succeeds() {
-        let a = Money::new_minor(100, Currency::GBP).unwrap();
-        let b = Money::new_minor(50, Currency::GBP).unwrap();
+        let a = Money::new_minor(100, Currency::Gbp).unwrap();
+        let b = Money::new_minor(50, Currency::Gbp).unwrap();
 
         let sum = a.checked_add(b).unwrap();
         assert_eq!(sum.amount(), 150);
-        assert_eq!(sum.currency(), Currency::GBP);
+        assert_eq!(sum.currency(), Currency::Gbp);
     }
 
     #[test]
     fn checked_add_different_currency_fails() {
-        let gbp = Money::new_minor(100, Currency::GBP).unwrap();
-        let usd = Money::new_minor(50, Currency::USD).unwrap();
+        let gbp = Money::new_minor(100, Currency::Gbp).unwrap();
+        let usd = Money::new_minor(50, Currency::Usd).unwrap();
 
         let result = gbp.checked_add(usd);
         assert_eq!(
             result,
-            Err(MoneyError::CurrencyMismatch(Currency::GBP, Currency::USD))
+            Err(MoneyError::CurrencyMismatch(Currency::Gbp, Currency::Usd))
         );
     }
 
     #[test]
     fn checked_sub_cannot_go_negative() {
-        let a = Money::new_minor(100, Currency::GBP).unwrap();
-        let b = Money::new_minor(150, Currency::GBP).unwrap();
+        let a = Money::new_minor(100, Currency::Gbp).unwrap();
+        let b = Money::new_minor(150, Currency::Gbp).unwrap();
 
         let result = a.checked_sub(b);
         assert!(matches!(result, Err(MoneyError::Negative(_))));
@@ -145,31 +146,31 @@ mod tests {
 
     #[test]
     fn display_formats_gbp_properly() {
-        let m = Money::new_minor(3400, Currency::GBP).unwrap();
+        let m = Money::new_minor(3400, Currency::Gbp).unwrap();
         assert_eq!(m.to_string(), "£34.00");
     }
 
     #[test]
     fn display_formats_small_amounts() {
-        let m = Money::new_minor(99, Currency::GBP).unwrap();
+        let m = Money::new_minor(99, Currency::Gbp).unwrap();
         assert_eq!(m.to_string(), "£0.99");
     }
 
     #[test]
     fn display_formats_usd() {
-        let m = Money::new_minor(1250, Currency::USD).unwrap();
+        let m = Money::new_minor(1250, Currency::Usd).unwrap();
         assert_eq!(m.to_string(), "$12.50");
     }
 
     #[test]
     fn display_formats_eur() {
-        let m = Money::new_minor(12345, Currency::EUR).unwrap();
+        let m = Money::new_minor(12345, Currency::Eur).unwrap();
         assert_eq!(m.to_string(), "€123.45");
     }
 
     #[test]
     fn display_formats_euro_zero() {
-        let m = Money::new_minor(0, Currency::EUR).unwrap();
+        let m = Money::new_minor(0, Currency::Eur).unwrap();
         assert_eq!(m.to_string(), "€0.00");
     }
 }

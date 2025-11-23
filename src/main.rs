@@ -1,10 +1,17 @@
+// Some optional bits to make clippy check a bit harder
+// #![forbid(unsafe_code)]
+// #![warn(clippy::pedantic)]
+// #![warn(clippy::nursery)]
+// #![warn(clippy::unwrap_used)]
+// #![warn(clippy::expect_used)]
+
 mod http;
 mod config;
 mod domain;
 
 use std::sync::{Arc, Mutex};
 
-use crate::domain::ledger::{self, Ledger};
+use crate::domain::ledger::{Ledger};
 use crate::{config::Config, http::routes::format_listen_addr};
 use crate::http::create_router;
 

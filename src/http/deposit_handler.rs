@@ -26,14 +26,14 @@ pub async fn deposit_handler(
         account_id.parse().map_err(|_| (StatusCode::BAD_REQUEST, "Invalid account id".to_string()))?;
 
     let currency = match body.currency.as_str() {
-        "GBP" => Currency::GBP,
+        "GBP" => Currency::Gbp,
         other => {
-            return Err((StatusCode::BAD_REQUEST, format!("Unsupported currency: {}", other)))
+            return Err((StatusCode::BAD_REQUEST, format!("Unsupported currency: {other}")))
         }
     };
 
     let money = Money::new_minor(body.amount_minor, currency)
-        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid amount {e}").to_string()))?;
+        .map_err(|e| (StatusCode::BAD_REQUEST, format!("Invalid amount {e}")))?;
 
     let mut ledger_guard = 
         state.ledger.lock().map_err(|_| (StatusCode::INTERNAL_SERVER_ERROR, "Ledger unavailable".to_string()))?;
