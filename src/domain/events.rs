@@ -46,7 +46,7 @@ impl LedgerEvent {
             id: EventId::new_v4(),
             created_at: OffsetDateTime::now_utc(),
             account_id,
-            payload: LedgerEventPayload::Deposit { amount }
+            payload: LedgerEventPayload::Withdraw { amount }
         }
     }
 }

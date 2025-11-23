@@ -11,6 +11,14 @@ pub enum Currency {
 }
 
 impl Currency {
+    pub fn code(&self) -> &'static str {
+        match self {
+            Currency::Eur => "EUR",
+            Currency::Gbp => "GBP",
+            Currency::Usd => "USD"
+        }
+    }
+
     pub fn symbol(&self) -> &'static str {
         match self {
             Currency::Eur => "€",
@@ -22,7 +30,7 @@ impl Currency {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Money {
-    /// Minor units (e.g. pence or cents). Always >= 0.
+    /// Minor units (e.g. pence or cents).
     amount: i64,
     currency: Currency,
 }
@@ -43,6 +51,10 @@ impl Money {
             return Err(MoneyError::Negative(amount));
         }
         Ok(Self { amount, currency })
+    }
+
+    pub fn zero(currency: Currency) -> Self {
+        Self { amount: 0, currency }
     }
 
     pub fn amount(&self) -> i64 {

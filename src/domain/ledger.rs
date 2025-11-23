@@ -1,6 +1,6 @@
 use tracing::info;
 
-use crate::domain::{Money, errors::DomainError, events::LedgerEvent, types::{AccountId, EventId}};
+use crate::domain::{Currency, Money, errors::DomainError, events::{LedgerEvent, LedgerEventPayload}, types::{AccountId, EventId}};
 
 #[derive(Debug, Default)]
 pub struct Ledger {
@@ -63,6 +63,48 @@ impl Ledger {
         Ok(id)
     }
 
+    pub fn withdraw(&mut self, account_id: AccountId, amount: Money) -> Result<EventId, DomainError> {
+        if !self.account_exists(account_id) {
+            return Err(DomainError::AccountNotFound)
+        }
+
+        info!("Withdrawing {} from {}", amount, account_id);
+
+        let balance = self.balance_for_account(account_id)?;
+
+        if balance.amount() < amount.amount() {
+            return Err(DomainError::InsufficientFunds { required_minor: amount.amount(), available_minor: balance.amount() });
+        }
+
+        let event = LedgerEvent::withdraw(account_id, amount);
+        let id = event.id;
+
+        self.events.push(event);
+
+        Ok(id)
+    }
+
+    pub fn balance_for_account(&self, account_id: AccountId) -> Result<Money, DomainError> {
+        let events = self.events_for_account(account_id)?;
+
+        // Only supporting GBP for now
+        let mut balance = Money::zero(Currency::Gbp);
+
+        for event in events {
+            match event.payload {
+                LedgerEventPayload::Deposit { amount } => {
+                    balance = balance.checked_add(amount).map_err(DomainError::InvalidMoney)?
+                }
+                LedgerEventPayload::Withdraw { amount } => {
+                    balance = balance.checked_sub(amount).map_err(DomainError::InvalidMoney)?
+                }
+                _ => {}
+            }
+        }
+
+        Ok(balance)
+    }
+
 }
 
 #[cfg(test)]
@@ -99,5 +141,43 @@ mod tests {
         let err = ledger.deposit(fake_account, amount).unwrap_err();
 
         matches!(err, DomainError::AccountNotFound);
+    }
+
+    #[test]
+    fn withdrawal_reduces_balance_when_sufficient_funds() {
+        let mut ledger = Ledger::new();
+        let account = ledger.open_account();
+
+        let ten = Money::new_minor(10_00, Currency::Gbp).unwrap();
+        let four = Money::new_minor(4_00, Currency::Gbp).unwrap();
+
+        ledger.deposit(account, ten).unwrap();
+        ledger.withdraw(account, four).unwrap();
+
+        let balance = ledger.balance_for_account(account).unwrap();
+        assert_eq!(balance.amount(), 6_00);
+    }
+
+    #[test]
+    fn withdrawal_fails_when_insufficient_funds() {
+        let mut ledger = Ledger::new();
+        let account = ledger.open_account();
+
+        let five = Money::new_minor(5_00, Currency::Gbp).unwrap();
+        let ten = Money::new_minor(10_00, Currency::Gbp).unwrap();
+
+        ledger.deposit(account, five).unwrap();
+
+        let err = ledger.withdraw(account, ten).unwrap_err();
+        match err {
+            DomainError::InsufficientFunds {
+                required_minor,
+                available_minor,
+            } => {
+                assert_eq!(required_minor, 10_00);
+                assert_eq!(available_minor, 5_00);
+            }
+            other => panic!("expected InsufficientFunds, got {other:?}"),
+        }
     }
 }

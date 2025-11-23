@@ -9,4 +9,12 @@ pub enum DomainError {
 
     #[error("invalid money value: {0}")]
     InvalidMoney(#[from] MoneyError),
+
+    #[error(
+        "insufficient funds: required {required_minor} (minor units), available {available_minor}"
+    )]
+    InsufficientFunds {
+        required_minor: i64,
+        available_minor: i64,
+    },
 }
