@@ -26,6 +26,15 @@ Everything is in-memory and append-only.
 
 ---
 
+## Tech stack
+
+- Rust
+- Axum
+- Tokio
+- Serde
+
+---
+
 ## Core Concepts
 
 ### **Account**
@@ -137,7 +146,7 @@ curl -X POST http://localhost:3000/accounts
 
 Or use Insomnia / Postman.
 
-Testing
+## Testing
 
 ```bash
 cargo test
