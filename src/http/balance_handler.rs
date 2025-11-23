@@ -1,7 +1,7 @@
 use axum::{Json, extract::{Path, State}, http::StatusCode};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
-use crate::{AppState, domain::{Currency, Money, errors::DomainError, types::AccountId}};
+use crate::{AppState, domain::types::AccountId};
 
 #[derive(Serialize)]
 pub struct BalanceResponse {
