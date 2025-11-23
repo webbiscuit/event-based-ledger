@@ -4,7 +4,7 @@ mod domain;
 
 use std::sync::{Arc, Mutex};
 
-use crate::domain::ledger::Ledger;
+use crate::domain::ledger::{self, Ledger};
 use crate::{config::Config, http::routes::format_listen_addr};
 use crate::http::create_router;
 
@@ -12,6 +12,7 @@ use tracing::{info, Level};
 use tracing_subscriber::EnvFilter;
 use anyhow::Result;
 
+#[derive(Clone)]
 pub struct AppState {
     pub ledger: Arc<Mutex<Ledger>>,
 }
@@ -24,7 +25,12 @@ async fn main() -> Result<()>{
 
     info!(?config, "Loaded Configuration");
 
-    let app = create_router();
+    let ledger = Ledger::new();
+    let app_state = AppState {
+        ledger: Arc::new(Mutex::new(ledger))
+    };
+
+    let app = create_router(app_state);
     let address = format_listen_addr(config.http_port);
     let listener = tokio::net::TcpListener::bind(address).await?;
 
